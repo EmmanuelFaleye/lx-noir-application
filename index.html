@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Apply — LX NOIR STUDIO</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: radial-gradient(1200px 600px at 50% -10%, #1c1c22 0%, #0c0c0f 60%);
+    color: #ececf1;
+  }
+  .card {
+    width: 100%;
+    max-width: 520px;
+    background: #15151a;
+    border: 1px solid #26262e;
+    border-radius: 18px;
+    padding: 36px 34px 30px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+  }
+  .brand {
+    letter-spacing: 0.42em;
+    font-size: 13px;
+    font-weight: 600;
+    color: #b9b9c6;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  h1 {
+    margin: 0 0 6px;
+    font-size: 25px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+  .sub { margin: 0 0 26px; color: #8b8b99; font-size: 14.5px; line-height: 1.5; }
+  label { display: block; font-size: 13px; color: #c7c7d3; margin: 0 0 7px; font-weight: 500; }
+  .field { margin-bottom: 17px; }
+  input, textarea {
+    width: 100%;
+    padding: 12px 14px;
+    background: #0e0e12;
+    border: 1px solid #2c2c36;
+    border-radius: 11px;
+    color: #f2f2f7;
+    font-size: 15px;
+    font-family: inherit;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  input:focus, textarea:focus {
+    outline: none;
+    border-color: #6d6df0;
+    box-shadow: 0 0 0 3px rgba(109,109,240,0.18);
+  }
+  textarea { resize: vertical; min-height: 70px; }
+  .row { display: flex; gap: 14px; }
+  .row .field { flex: 1; }
+  button {
+    width: 100%;
+    margin-top: 8px;
+    padding: 14px 16px;
+    border: none;
+    border-radius: 11px;
+    background: linear-gradient(180deg, #7676f7 0%, #5a5ae6 100%);
+    color: #fff;
+    font-size: 15.5px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: transform .06s, opacity .15s;
+  }
+  button:hover { opacity: .94; }
+  button:active { transform: translateY(1px); }
+  button:disabled { opacity: .55; cursor: not-allowed; }
+  .msg {
+    margin-top: 18px;
+    padding: 13px 15px;
+    border-radius: 11px;
+    font-size: 14px;
+    line-height: 1.45;
+    display: none;
+  }
+  .msg.show { display: block; }
+  .msg.success { background: rgba(52,168,120,0.14); border: 1px solid rgba(52,168,120,0.4); color: #7ee2b3; }
+  .msg.dupe    { background: rgba(214,158,46,0.14); border: 1px solid rgba(214,158,46,0.4); color: #ecc879; }
+  .msg.error   { background: rgba(224,84,84,0.14);  border: 1px solid rgba(224,84,84,0.4);  color: #f0a0a0; }
+  .foot { margin-top: 22px; text-align: center; font-size: 12px; color: #5c5c69; }
+  .req { color: #7676f7; }
+</style>
+</head>
+<body>
+  <form class="card" id="applyForm" autocomplete="on">
+    <div class="brand">LX NOIR STUDIO</div>
+    <h1>Application Form</h1>
+    <p class="sub">Tell us about yourself. We'll review your application and get back to you shortly.</p>
+ 
+    <div class="field">
+      <label for="full_name">Full name <span class="req">*</span></label>
+      <input id="full_name" name="full_name" type="text" required placeholder="Jane Doe" />
+    </div>
+ 
+    <div class="field">
+      <label for="email">Email address <span class="req">*</span></label>
+      <input id="email" name="email" type="email" required placeholder="jane@example.com" />
+    </div>
+ 
+    <div class="field">
+      <label for="link">LinkedIn or portfolio link</label>
+      <input id="link" name="link" type="url" placeholder="https://linkedin.com/in/janedoe" />
+    </div>
+ 
+    <div class="field">
+      <label for="skills">Skills</label>
+      <textarea id="skills" name="skills" placeholder="n8n, GHL, AI automation, API integrations…"></textarea>
+    </div>
+ 
+    <div class="row">
+      <div class="field">
+        <label for="hourly_rate">Hourly rate</label>
+        <input id="hourly_rate" name="hourly_rate" type="text" placeholder="$35/hr" />
+      </div>
+      <div class="field">
+        <label for="availability">Availability</label>
+        <input id="availability" name="availability" type="text" placeholder="20 hrs/week" />
+      </div>
+    </div>
+ 
+    <button type="submit" id="submitBtn">Submit application</button>
+ 
+    <div class="msg" id="msg"></div>
+    <div class="foot">Powered by LX NOIR STUDIO automation</div>
+  </form>
+ 
+<script>
+  // ── CONFIG ────────────────────────────────────────────────
+  // Paste your n8n Webhook "Production URL" here:
+  const WEBHOOK_URL = "PASTE_YOUR_WEBHOOK_URL_HERE";
+  // ──────────────────────────────────────────────────────────
+ 
+  const form = document.getElementById("applyForm");
+  const btn = document.getElementById("submitBtn");
+  const msg = document.getElementById("msg");
+ 
+  function showMsg(type, text) {
+    msg.className = "msg show " + type;
+    msg.textContent = text;
+  }
+ 
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    msg.className = "msg";
+ 
+    if (WEBHOOK_URL.startsWith("PASTE_")) {
+      showMsg("error", "http://localhost:5678/webhook/lx-noir-application");
+      return;
+    }
+ 
+    const data = {
+      full_name: form.full_name.value.trim(),
+      email: form.email.value.trim(),
+      link: form.link.value.trim(),
+      skills: form.skills.value.trim(),
+      hourly_rate: form.hourly_rate.value.trim(),
+      availability: form.availability.value.trim()
+    };
+ 
+    btn.disabled = true;
+    btn.textContent = "Submitting…";
+ 
+    try {
+      const res = await fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+ 
+      let body = {};
+      try { body = await res.json(); } catch (_) {}
+ 
+      if (body.status === "duplicate") {
+        showMsg("dupe", "You've already applied with this email. We have your application on file.");
+      } else if (res.ok) {
+        showMsg("success", "Thank you! Your application has been received. Check your inbox for a confirmation email.");
+        form.reset();
+      } else {
+        showMsg("error", "Something went wrong (HTTP " + res.status + "). Please try again.");
+      }
+    } catch (err) {
+      showMsg("error", "Could not reach the server. If testing locally, make sure CORS is enabled on the n8n webhook.");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Submit application";
+    }
+  });
+</script>
+</body>
+</html>
